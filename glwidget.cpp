@@ -15,7 +15,9 @@
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent), 
       simu_(nullptr),
-      render_(nullptr)
+      render_(nullptr),
+      lastMousePos(),
+      mousePressed(false)
 {   
     render_ = new Renderer();
     
@@ -56,6 +58,7 @@ void GLWidget::setSimu(Simulation* simu){
         }
     }
     render_->setScaleFactor(1/(max));
+    render_->setMax(max);
 
     emit simuIsSet();
     
@@ -90,11 +93,35 @@ void GLWidget::wheelEvent(QWheelEvent *event){
     render_->wheelEvent(event);
 }
 
-// void GLWidget::mouseMoveEvent(QMouseEvent *event){
-//     int width = this->width();
-//     int height = this->height();
-//     render_->mouseMoveEvent(event,width,height,this);
+void GLWidget::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        mousePressed = true;
+        lastMousePos = event->pos();
+    }
+}
 
-// }
+void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        mousePressed = false;
+    }
+}
+
+void GLWidget::mouseMoveEvent(QMouseEvent *event) {
+    if (mousePressed) {
+        QPoint delta = event->pos() - lastMousePos;
+        float sensitivity = 0.01f;
+
+        // yaw += delta.x() * sensitivity;
+        // pitch += delta.y() * sensitivity;
+
+        render_->addPitch(delta.x() * sensitivity);
+        render_->addYaw(delta.y() * sensitivity);
+
+        // // Clamp pitch to avoid flipping
+        // pitch = std::clamp(pitch, -89.0f, 89.0f);
+
+        lastMousePos = event->pos();
+    }
+}
 
 

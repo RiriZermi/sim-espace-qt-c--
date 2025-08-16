@@ -3,6 +3,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLShaderProgram>
+#include <QPoint>
 
 #include "simulation.h"
 #include "renderer.h"
@@ -29,12 +30,19 @@ protected:
 
     void keyPressEvent(QKeyEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
-    //void mouseMoveEvent(QMouseEvent *event)override;
+    void mouseMoveEvent(QMouseEvent *event)override;
+    void mouseReleaseEvent(QMouseEvent *event)override;
+    void mousePressEvent(QMouseEvent *event)override;
 
 private:
 
     Simulation* simu_;
     Renderer* render_;
+    QPoint lastMousePos;
+    bool mousePressed;
+
+
+
     double dt = 0.016; //ms
 
 signals:

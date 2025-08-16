@@ -24,21 +24,38 @@ public:
     void mouseMoveEvent(QMouseEvent *eventj,int,int,GLWidget*);
     void setScaleFactor(double);
     void followAstre(Astre*);
+    void addPitch(float);
+    void addYaw(float);
+    void updateViewMatrix();
+    void updateProjectionMatrix();
+    void initShaders();
+    void initAstresBuffers();
+    void initGridVertex();
+    void initGridBuffers();
+    void initCircleVertex();
+    void initSphereVertex();
+    void updateGridVertex();
+    void initMatrices();
+    void setMax(float m){max = m;}
 
 private:
-    void initShaders();
-    void initAstresVertex();
-    void initCircleVertex();
-    void initMatrices();
     QOpenGLShaderProgram* shaderProgram;
-    unsigned int vao, vbo;
+    unsigned int vao, vbo, ebo;
     vector<float> vertices;
+    vector<unsigned int> indices;
+    unsigned int vaoGrid, vboGrid, eboGrid;
+    vector<float> verticesGrid;
+    vector<unsigned int> indicesGrid;
 
     glm::mat4 view,projection;
+    int rgbLoc,modeLoc;
     int viewLoc,projectionLoc;
     double scaleFactor;
-    double camXPos,camYPos;
+    float pitch,yaw;
+    double camXPos,camYPos,camZPos;
     Astre* astreFollowed;
+    float max;
+    bool isInit;
 
 };
 

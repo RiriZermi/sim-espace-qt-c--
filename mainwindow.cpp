@@ -71,6 +71,21 @@ void MainWindow::astresUpdated(){;
     addFollowQActions();
     addDeleteActions();
     addResizeActions();
+
+    //---Update render max-----
+    vector<Astre*> astres = simu_->getAstres();
+    float max = 100; //valeur initial minimal
+    for(size_t i=0;i<astres.size();i++){
+        if(abs(astres[i]->x)>max){
+            max = abs(astres[i]->x);
+        }
+        if(abs(astres[i]->y)>max){
+            max = abs(astres[i]->y);
+        }
+    }
+    render_->setMax(max);
+    render_->initGridBuffers();
+
 }
 
 void MainWindow::addFollowQActions(){
