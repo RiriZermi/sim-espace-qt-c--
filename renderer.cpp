@@ -245,26 +245,26 @@ void Renderer::render(vector<Astre*> astres) {
     glDrawElements(GL_LINES, indicesGrid.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
     shaderProgram->release();
-    cout << "-------------------TOTAL DISPLACEMENT----------------" << endl;
-    float maxVal = 0.0;
-    for(int j=0;j<indicesGrid.size();j+=3){
-        glm::vec3 position = glm::vec3(verticesGrid[j],verticesGrid[j+1],verticesGrid[j+2]);
-        // cout << "position : "<<position[0] <<" "<<position[1] <<" "<<position[2] << "\n";
-        position = position * max;
-        float totalDisplacement=0;
-        float const c = 300'000'000;
-        float const G = 6.6* pow(10,-11);
-        for(int i=0;i<astresNbr;i++){
-            glm::vec3 diff = astresPos[i] - position;
-            float distance = length(diff);
-            float dz = G*astresMass[i]/distance;
-            totalDisplacement += dz;  
-        }
-        if (totalDisplacement > maxVal) maxVal=totalDisplacement;
-        // cout << totalDisplacement << "\n";
-    }
-    cout<<maxVal<<endl;
-    cout << "GRID VERTEX \n";
+    // cout << "-------------------TOTAL DISPLACEMENT----------------" << endl;
+    // float maxVal = 0.0;
+    // for(int j=0;j<indicesGrid.size();j+=3){
+    //     glm::vec3 position = glm::vec3(verticesGrid[j],verticesGrid[j+1],verticesGrid[j+2]);
+    //     // cout << "position : "<<position[0] <<" "<<position[1] <<" "<<position[2] << "\n";
+    //     position = position * max;
+    //     float totalDisplacement=0;
+    //     float const c = 300'000'000;
+    //     float const G = 6.6* pow(10,-11);
+    //     for(int i=0;i<astresNbr;i++){
+    //         glm::vec3 diff = astresPos[i] - position;
+    //         float distance = length(diff);
+    //         float dz = G*astresMass[i]/distance;
+    //         totalDisplacement += dz;  
+    //     }
+    //     if (totalDisplacement > maxVal) maxVal=totalDisplacement;
+    //     // cout << totalDisplacement << "\n";
+    // }
+    // cout<<maxVal<<endl;
+    // cout << "GRID VERTEX \n";
     // for (int i=0;i<verticesGrid.size();i=i+3){
     //     glm::vec4 vector= projection*view*model* glm::vec4(verticesGrid[i],verticesGrid[i+1],-0.5,1);
     //     cout << vector[0] << " " << vector[1] << " "<< vector[2] << endl;
