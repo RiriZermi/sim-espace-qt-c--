@@ -309,7 +309,7 @@ void Renderer::initCircleVertex(){
 }
 void Renderer::initSphereVertex(){
     //---------Vertices------------
-    int n=10;
+    int n=100;
     float phi; //latitude angle
     float theta; // longitude angle
     vertices.push_back(0);
