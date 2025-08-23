@@ -37,6 +37,8 @@ public:
     void updateGridVertex();
     void initMatrices();
     void setMax(float m){max = m;}
+    void setWidth(int width){w = width;}
+    void setHeight(int height){h=height;}
 
 private:
     QOpenGLShaderProgram* shaderProgram;
@@ -56,6 +58,7 @@ private:
     Astre* astreFollowed;
     float max;
     bool isInit;
+    int w,h;
 
 };
 

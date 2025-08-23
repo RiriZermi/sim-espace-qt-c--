@@ -120,7 +120,7 @@ void Renderer::initGridBuffers(){
 void Renderer::initShaders(){
     shaderProgram = new QOpenGLShaderProgram();
     shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
-        R"(#version 330 core
+        R"(#version 330 core 
         layout(location = 0) in vec3 position;
         uniform bool mode;
         uniform mat4 model;
@@ -254,6 +254,7 @@ void Renderer::render(vector<Astre*> astres) {
     //     float totalDisplacement=0;
     //     float const c = 300'000'000;
     //     float const G = 6.6* pow(10,-11);
+    //     float spread = 1e11;
     //     for(int i=0;i<astresNbr;i++){
     //         glm::vec3 diff = astresPos[i] - position;
     //         float distance = length(diff);
@@ -287,7 +288,7 @@ void Renderer::render(vector<Astre*> astres) {
     //         cout << view[j][i] << "  ";
     //     }
     //     cout << "\n";
-    //}
+    // }
     // cout <<"----------------------\n"<<endl;
     // cout <<"yaw " << yaw << endl;
     // cout << "pitch " << pitch <<endl;
@@ -304,6 +305,15 @@ void Renderer::render(vector<Astre*> astres) {
     // for(int i=0;i<4;i++){
     //     for(int j=0;j<4;j++){
     //         cout << (projection*view*model)[j][i] << "  ";
+    //     }
+    //     cout << "\n";
+    // }
+    // cout <<"----------------------\n"<<endl;
+    
+    // cout << "-----POINTG--------\n";
+    // for(int i=0;i<4;i++){
+    //     for(int j=0;j<4;j++){
+    //         cout << (projection*view*model)[j][i]*(glm::vec4(1.0,0.0,0.0,1.0)) << "  ";
     //     }
     //     cout << "\n";
     // }
@@ -483,14 +493,28 @@ void Renderer::addYaw(float delta){
 }
 
 void Renderer::updateProjectionMatrix(){
+    // shaderProgram->bind();
+    // projection = glm::mat4(1.0f);
+    // projection = glm::scale(projection,glm::vec3(scaleFactor,scaleFactor,scaleFactor));
+    // glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
+    // shaderProgram->release();
+
+    // float nearPlane = 10000.0f;
+    // float farPlane = 100000000.0f;
+    // shaderProgram->release();
+
     shaderProgram->bind();
-    projection = glm::mat4(1.0f);
-    projection = glm::scale(projection,glm::vec3(scaleFactor,scaleFactor,scaleFactor));
+
+    float fov = glm::radians(100.0f); // champ de vision vertical (en radians)
+    float aspect = (float)w / (float)h; // ratio écran
+    float d = (1/scaleFactor);
+    float nearPlane = 0.1*d;      // proche de la caméra
+    float farPlane  = 3*d; // très loin
+
+    projection = glm::perspective(fov, aspect, nearPlane, farPlane);
+
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
     shaderProgram->release();
-
-    float nearPlane = 10000.0f;
-    float farPlane = 100000000.0f;
     
 
     
@@ -500,8 +524,8 @@ void Renderer::updateViewMatrix(){
 
     
 
-    // double r =  1/(scaleFactor*2);
-    double r=1;
+    double r =  1/scaleFactor;
+    // double r=1;
     shaderProgram->bind();
 
     glm::vec3 cameraPos;

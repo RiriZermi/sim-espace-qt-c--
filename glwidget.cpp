@@ -41,7 +41,7 @@ GLWidget::~GLWidget()
 void GLWidget::initializeGL()
 {   
     initializeOpenGLFunctions();
-    render_->init(); 
+    render_->init();
 }
 
 
@@ -59,6 +59,8 @@ void GLWidget::setSimu(Simulation* simu){
     }
     render_->setScaleFactor(1/(max));
     render_->setMax(max);
+    // render_->init();
+
 
     emit simuIsSet();
     
@@ -72,7 +74,9 @@ void GLWidget::tick(){
 }
 
 void GLWidget::resizeGL(int w, int h)
-{
+{   
+    render_->setWidth(w);
+    render_->setHeight(h);
     glViewport(0, 0, w, h);
 }
 
