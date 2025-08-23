@@ -51,13 +51,43 @@ void Renderer::initMatrices(){
 
     projectionLoc = shaderProgram->uniformLocation("projection");
     viewLoc = shaderProgram->uniformLocation("view");
-    projection = glm::mat4(1.0f);
-    projection = glm::scale(projection,glm::vec3(scaleFactor,scaleFactor,scaleFactor));
+
+    float fov = glm::radians(100.0f); // champ de vision vertical (en radians)
+    float aspect = 1; // ratio écran
+    float d = (1/scaleFactor);
+    float nearPlane = 0.1*d;      // proche de la caméra
+    float farPlane  = 3*d; // très loin
+
+    projection = glm::perspective(fov, aspect, nearPlane, farPlane);
+
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
-    view = glm::mat4(1.0f);
-    view = glm::translate(view,glm::vec3(0,0,0));
+    double r =  1/scaleFactor;
+    // double r=1;
+
+
+    glm::vec3 cameraPos;
+    
+
+    cameraPos.x = cos(yaw)* cos(pitch)*r;
+    cameraPos.y = sin(yaw)* cos(pitch)*r; 
+    cameraPos.z = sin(pitch) * r;
+
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    view = glm::lookAt(cameraPos, cameraTarget, up);
+    //view = glm::mat4(1.0f);
+    
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+
+
+    // projection = glm::mat4(1.0f);
+    // projection = glm::scale(projection,glm::vec3(scaleFactor,scaleFactor,scaleFactor));
+    // glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
+
+    // view = glm::mat4(1.0f);
+    // view = glm::translate(view,glm::vec3(0,0,0));
+    // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     shaderProgram->release();
 
 }
@@ -139,23 +169,17 @@ void Renderer::initShaders(){
                 fragPos=position;
                 gl_Position =   projection * view * model * vec4(position, 1.0);
             } else {
-                vec3 tmp = position;
-                float max = 3*2.27e11;
-                vec3 worldPos = max * position;
+                vec4 worldPos = model * vec4(position,1.0);
                 // z transfo
                 float totalDisplacement = 0.0;
                 for(int i=0;i<astresNbr;i++){
-                    vec3 diff = astresPos[i] - worldPos;
+                    vec3 diff = astresPos[i] - worldPos.xyz;
                     float distance = length(diff);
-                    float dz = G*astresMass[i]/(distance+1e10);
+                    float dz = -G * astresMass[i] /(distance+1e9);
                     totalDisplacement += dz;   
                 }
-                tmp.z = totalDisplacement/(5e11);
-                if (tmp.z>0.99){
-                tmp.z = 0.99;
-                } 
-                //
-                gl_Position = projection * view * model * vec4(tmp,1.0);
+                worldPos.z = totalDisplacement - 1e10;
+                gl_Position = projection * view * worldPos;
             }   
         })"
     );
@@ -258,11 +282,11 @@ void Renderer::render(vector<Astre*> astres) {
     //     for(int i=0;i<astresNbr;i++){
     //         glm::vec3 diff = astresPos[i] - position;
     //         float distance = length(diff);
-    //         float dz = G*astresMass[i]/distance;
+    //         float dz = G*astresMass[i]/pow(distance+1e4,1);
     //         totalDisplacement += dz;  
     //     }
     //     if (totalDisplacement > maxVal) maxVal=totalDisplacement;
-    //     // cout << totalDisplacement << "\n";
+        // cout << totalDisplacement << "\n";
     // }
     // cout<<maxVal<<endl;
     // cout << "GRID VERTEX \n";
@@ -311,14 +335,15 @@ void Renderer::render(vector<Astre*> astres) {
     // cout <<"----------------------\n"<<endl;
     
     // cout << "-----POINTG--------\n";
-    // for(int i=0;i<4;i++){
-    //     for(int j=0;j<4;j++){
-    //         cout << (projection*view*model)[j][i]*(glm::vec4(1.0,0.0,0.0,1.0)) << "  ";
-    //     }
-    //     cout << "\n";
-    // }
-    // cout <<"----------------------\n"<<endl;
-
+    // glm::vec4 poing1 = projection*view*glm::vec4(0.0,0.0,-1e11,1.0);
+    // glm::vec4 poing = view*glm::vec4(0.0,0.0,-1e11,1.0);
+    // cout << poing[0] << " "<<poing[1] << " " << poing[2]<<" "<< poing[3] << "\n";  
+    // cout << poing1[0] << " "<<poing1[1] << " " << poing1[2]<<" "<< poing1[3] <<"\n";
+    // cout << "##################\n";
+    // poing1 = projection*view*glm::vec4(0.0,0.0,1e11,1.0);
+    // poing = view*glm::vec4(0.0,0.0,1e11,1.0);
+    // cout << poing[0] << " "<<poing[1] << " " << poing[2]<<" "<< poing[3] <<"\n";  
+    // cout << poing1[0] << " "<<poing1[1] << " " << poing1[2]<<" "<< poing1[3] << "\n";    
 }
 
 void Renderer::followAstre(Astre* astre){
@@ -396,7 +421,7 @@ void Renderer::initGridVertex(){
     // float max2 = 1.0;
     // float spacing = (2*max2)/15;
     // unsigned int points_per_side = static_cast<unsigned int>((2 * max2) / spacing) + 1;
-    unsigned int points_per_side = 75;
+    unsigned int points_per_side = 100;
     float spacing = 2.0 / (points_per_side-1);
     float x,y;
     for(unsigned int i=0;i<points_per_side;i++){
