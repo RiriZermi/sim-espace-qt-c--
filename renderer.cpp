@@ -164,9 +164,16 @@ void Renderer::initShaders(){
         
         const float c = 300000000.0;
         const float G = 6.6e-11;
+
+        out float lightIntensity;
+
         void main() {
             if (mode){
                 fragPos=position;
+                vec3 worldPos = (model * vec4(position, 1.0)).xyz;
+                vec3 normal = normalize(position);
+                vec3 dirToCenter = normalize(-worldPos);
+                lightIntensity = max(dot(normal, dirToCenter), 0.15);
                 gl_Position =   projection * view * model * vec4(position, 1.0);
             } else {
                 vec4 worldPos = model * vec4(position,1.0);
@@ -186,14 +193,14 @@ void Renderer::initShaders(){
     shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
         R"(#version 330 core
         out vec4 FragColor;
+        in float lightIntensity;
         uniform vec3 rgb;
         uniform bool mode;
         in vec3 fragPos;
         void main() {
             if (mode){
-                float factor = ((fragPos.x*fragPos.x + fragPos.y*fragPos.y)+2)/4 ;
-                vec3 color = rgb * factor;
-                FragColor = vec4(color, 1.0);
+                float fade = smoothstep(0.0, 10.0, lightIntensity*10);
+                FragColor = vec4(rgb.rgb * fade, 1.0);
             } else {
                 FragColor = vec4(rgb,1.0);
             }
@@ -223,8 +230,19 @@ void Renderer::render(vector<Astre*> astres) {
     if (astreFollowed != nullptr){
         camXPos = astreFollowed->x;
         camYPos = astreFollowed->y;
-        view = glm::mat4(-1.0f);
-        view = glm::translate(view,glm::vec3(-camXPos,-camYPos,0.0));
+        // updateViewMatrix();
+        double r =  1/scaleFactor;
+        glm::vec3 cameraPos;
+    
+        cameraPos.x = cos(yaw)* cos(pitch)*r + camXPos;
+        cameraPos.y = sin(yaw)* cos(pitch)*r + camYPos; 
+        cameraPos.z = sin(pitch) * r;
+
+        glm::vec3 cameraTarget = glm::vec3(camXPos, camYPos, 0.0f);
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+        view = glm::lookAt(cameraPos, cameraTarget, up);
+        //view = glm::mat4(1.0f);
+        
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     }
 
@@ -269,85 +287,12 @@ void Renderer::render(vector<Astre*> astres) {
     glDrawElements(GL_LINES, indicesGrid.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
     shaderProgram->release();
-    // cout << "-------------------TOTAL DISPLACEMENT----------------" << endl;
-    // float maxVal = 0.0;
-    // for(int j=0;j<indicesGrid.size();j+=3){
-    //     glm::vec3 position = glm::vec3(verticesGrid[j],verticesGrid[j+1],verticesGrid[j+2]);
-    //     // cout << "position : "<<position[0] <<" "<<position[1] <<" "<<position[2] << "\n";
-    //     position = position * max;
-    //     float totalDisplacement=0;
-    //     float const c = 300'000'000;
-    //     float const G = 6.6* pow(10,-11);
-    //     float spread = 1e11;
-    //     for(int i=0;i<astresNbr;i++){
-    //         glm::vec3 diff = astresPos[i] - position;
-    //         float distance = length(diff);
-    //         float dz = G*astresMass[i]/pow(distance+1e4,1);
-    //         totalDisplacement += dz;  
-    //     }
-    //     if (totalDisplacement > maxVal) maxVal=totalDisplacement;
-        // cout << totalDisplacement << "\n";
-    // }
-    // cout<<maxVal<<endl;
-    // cout << "GRID VERTEX \n";
-    // for (int i=0;i<verticesGrid.size();i=i+3){
-    //     glm::vec4 vector= projection*view*model* glm::vec4(verticesGrid[i],verticesGrid[i+1],-0.5,1);
-    //     cout << vector[0] << " " << vector[1] << " "<< vector[2] << endl;
-    // }
-    // cout << "WORD 000 " <<endl;
-    // glm::vec4 vector= projection*view *model* glm::vec4(0,0,0,1);
-    // cout << vector[0] << " " << vector[1] << " "<< vector[2] << endl;
-    // cout << "-----MODEL--------\n";
-    // for(int i=0;i<4;i++){
-    //     cout << "\n";
-    //     for(int j=0;j<4;j++){
-    //         cout << model[j][i] << "  ";
-    //     }
-    // }
-    // cout <<"----------------------\n"<<endl;
 
-    // cout << "-----VIEW--------\n";
-    // for(int i=0;i<4;i++){
-    //     for(int j=0;j<4;j++){
-    //         cout << view[j][i] << "  ";
-    //     }
-    //     cout << "\n";
-    // }
-    // cout <<"----------------------\n"<<endl;
-    // cout <<"yaw " << yaw << endl;
-    // cout << "pitch " << pitch <<endl;
-    // cout << "-----Projeciton--------\n";
-    // for(int i=0;i<4;i++){
-    //     for(int j=0;j<4;j++){
-    //         cout << projection[j][i] << "  ";
-    //     }
-    //     cout << "\n";
-    // }
-    // cout <<"----------------------"<<endl;
-
-    // cout << "-----PRODUIT--------\n";
-    // for(int i=0;i<4;i++){
-    //     for(int j=0;j<4;j++){
-    //         cout << (projection*view*model)[j][i] << "  ";
-    //     }
-    //     cout << "\n";
-    // }
-    // cout <<"----------------------\n"<<endl;
-    
-    // cout << "-----POINTG--------\n";
-    // glm::vec4 poing1 = projection*view*glm::vec4(0.0,0.0,-1e11,1.0);
-    // glm::vec4 poing = view*glm::vec4(0.0,0.0,-1e11,1.0);
-    // cout << poing[0] << " "<<poing[1] << " " << poing[2]<<" "<< poing[3] << "\n";  
-    // cout << poing1[0] << " "<<poing1[1] << " " << poing1[2]<<" "<< poing1[3] <<"\n";
-    // cout << "##################\n";
-    // poing1 = projection*view*glm::vec4(0.0,0.0,1e11,1.0);
-    // poing = view*glm::vec4(0.0,0.0,1e11,1.0);
-    // cout << poing[0] << " "<<poing[1] << " " << poing[2]<<" "<< poing[3] <<"\n";  
-    // cout << poing1[0] << " "<<poing1[1] << " " << poing1[2]<<" "<< poing1[3] << "\n";    
 }
 
 void Renderer::followAstre(Astre* astre){
     astreFollowed = astre;
+
 }
 
 void Renderer::initCircleVertex(){
@@ -550,17 +495,15 @@ void Renderer::updateViewMatrix(){
     
 
     double r =  1/scaleFactor;
-    // double r=1;
     shaderProgram->bind();
 
     glm::vec3 cameraPos;
     
-
-    cameraPos.x = cos(yaw)* cos(pitch)*r;
-    cameraPos.y = sin(yaw)* cos(pitch)*r; 
+    cameraPos.x = cos(yaw)* cos(pitch)*r + camXPos;
+    cameraPos.y = sin(yaw)* cos(pitch)*r + camYPos; 
     cameraPos.z = sin(pitch) * r;
 
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraTarget = glm::vec3(camXPos, camYPos, 0.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     view = glm::lookAt(cameraPos, cameraTarget, up);
     //view = glm::mat4(1.0f);
