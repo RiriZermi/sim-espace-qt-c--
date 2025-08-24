@@ -29,7 +29,8 @@ Sim-Espace is an interactive **3D** simulation modeling the motion of celestial 
 - OpenGL for 3D rendering.  
 
 ## Installation & Compilation & Run
-0. You need to have Qt libraries and indicate where your include folder in the Makefile by changing the **ABS_PATH** variable
+0. You need to have Qt libraries and indicate where your include folder in the Makefile by changing the **ABS_PATH** variable.
+
 1. Clone the repository:  
 ```bash
 git clone https://github.com/RiriZermi/sim-espace-qt-c--
