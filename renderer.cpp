@@ -242,7 +242,6 @@ void Renderer::render(vector<Astre*> astres) {
         glm::vec3 cameraTarget = glm::vec3(camXPos, camYPos, 0.0f);
 
         float angle = glm::radians(deg);
-        cout << deg << endl;
         glm::vec3 front = glm::normalize(cameraTarget-cameraPos);
         glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), angle, front);
         glm::vec3 rotatedUp = glm::normalize(glm::vec3(rollMatrix * glm::vec4(glm::vec3(0.0,1.0,0.0), 0.0f)));
@@ -433,10 +432,9 @@ void Renderer::keyPressEvent(QKeyEvent *event){
                 deg = deg - 5;
                 break;
             default:
-                
                 break;
+        }
         updateViewMatrix();
-    }
 
 }
 
@@ -474,16 +472,6 @@ void Renderer::addYaw(float delta){
 }
 
 void Renderer::updateProjectionMatrix(){
-    // shaderProgram->bind();
-    // projection = glm::mat4(1.0f);
-    // projection = glm::scale(projection,glm::vec3(scaleFactor,scaleFactor,scaleFactor));
-    // glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
-    // shaderProgram->release();
-
-    // float nearPlane = 10000.0f;
-    // float farPlane = 100000000.0f;
-    // shaderProgram->release();
-
     shaderProgram->bind();
 
     float fov = glm::radians(100.0f); // champ de vision vertical (en radians)
