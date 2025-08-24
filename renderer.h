@@ -59,6 +59,6 @@ private:
     float max;
     bool isInit;
     int w,h;
-
+    float deg;
 };
 

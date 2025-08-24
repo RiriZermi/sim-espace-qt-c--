@@ -26,7 +26,8 @@ Renderer::Renderer()
     camZPos(1.0), 
     astreFollowed(nullptr),
     max(0),
-    isInit(false)
+    isInit(false),
+    deg(0.0)
 {
     
 }
@@ -239,8 +240,14 @@ void Renderer::render(vector<Astre*> astres) {
         cameraPos.z = sin(pitch) * r;
 
         glm::vec3 cameraTarget = glm::vec3(camXPos, camYPos, 0.0f);
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-        view = glm::lookAt(cameraPos, cameraTarget, up);
+
+        float angle = glm::radians(deg);
+        cout << deg << endl;
+        glm::vec3 front = glm::normalize(cameraTarget-cameraPos);
+        glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), angle, front);
+        glm::vec3 rotatedUp = glm::normalize(glm::vec3(rollMatrix * glm::vec4(glm::vec3(0.0,1.0,0.0), 0.0f)));
+
+        view = glm::lookAt(cameraPos, cameraTarget, rotatedUp);
         //view = glm::mat4(1.0f);
         
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
@@ -406,7 +413,6 @@ void Renderer::initGridVertex(){
 }
 
 void Renderer::keyPressEvent(QKeyEvent *event){
-    if (astreFollowed==nullptr){
         switch (event->key()) {
             case Qt::Key_Up:
                 camYPos += (1/(scaleFactor*50));
@@ -420,10 +426,15 @@ void Renderer::keyPressEvent(QKeyEvent *event){
             case Qt::Key_Right:
                 camXPos += (1/(scaleFactor*50));
                 break;
+            case Qt::Key_Q:
+                deg = deg + 5;
+                break;
+            case Qt::Key_D:
+                deg = deg - 5;
+                break;
             default:
                 
                 break;
-        }
         updateViewMatrix();
     }
 
@@ -504,8 +515,13 @@ void Renderer::updateViewMatrix(){
     cameraPos.z = sin(pitch) * r;
 
     glm::vec3 cameraTarget = glm::vec3(camXPos, camYPos, 0.0f);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    view = glm::lookAt(cameraPos, cameraTarget, up);
+
+    float angle = glm::radians(deg);
+    glm::vec3 front = glm::normalize(cameraTarget-cameraPos);
+    glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), angle, front);
+    glm::vec3 rotatedUp = glm::normalize(glm::vec3(rollMatrix * glm::vec4(glm::vec3(0.0,1.0,0.0), 0.0f)));
+
+    view = glm::lookAt(cameraPos, cameraTarget, rotatedUp);
     //view = glm::mat4(1.0f);
     
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
