@@ -2,16 +2,19 @@
 
 # Variables #aaa
 CXX = g++                            # Le compilateur C++
-CXXFLAGS = -Wall -g                 # Options de compilation (affichage des warnings et debug)
-LIBS = -L/mingw64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lopengl32 # Librairies par défaut
+CXXFLAGS = -Wall -g                 # Options de compilation 
+LIBS = -L/mingw64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lopengl32
 
-# Include paths pour Qt5 (modifie selon ton installation)
-INCLUDE = -I/mingw64/include \
-          -I/mingw64/include/QtWidgets \
-          -I/mingw64/include/QtGui \
-          -I/mingw64/include/QtCore \
-          -I/mingw64/include/QtOpenGL\
-		  -I/mingw64/include/GL
+#---------- ABS_PATH VARIABLE---------
+ABS_PATH = /mingw64/include
+#--------------------------------------------
+
+INCLUDE = -I$(ABS_PATH) \
+          -I$(ABS_PATH)/QtWidgets \
+          -I$(ABS_PATH)/QtGui \
+          -I$(ABS_PATH)/QtCore \
+          -I$(ABS_PATH)/QtOpenGL \
+          -I$(ABS_PATH)/GL
 
 # Sources et objets
 SOURCES := $(filter-out moc_%.cpp, $(wildcard *.cpp))
